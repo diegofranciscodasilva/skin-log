@@ -1,0 +1,130 @@
+SKINLOG — PASSO A PASSO
+=======================
+
+1. O QUE É O PROJETO
+--------------------
+O SkinLog é um diário pessoal para registrar e acompanhar visualmente mudanças
+na pele. Cada registro pode conter região do corpo, data, foto, níveis de
+coceira, dor/ardência e vermelhidão, produtos usados e observações.
+
+Os dados do diário ficam no armazenamento IndexedDB do navegador. Uma API
+Python opcional calcula medidas entre duas fotos quando a pessoa escolhe
+"Medir diferenças". O SkinLog não diagnostica, não recomenda tratamentos e
+não substitui atendimento médico.
+
+2. PRÉ-REQUISITOS
+-----------------
+- Python 3.9 ou superior.
+- Navegador moderno compatível com IndexedDB, Canvas e createImageBitmap.
+- Node.js é opcional, apenas para verificar a sintaxe do JavaScript.
+
+3. INSTALAÇÃO NO WINDOWS (POWERSHELL)
+-------------------------------------
+Abra o PowerShell na pasta principal do projeto e execute:
+
+    python -m venv .venv
+    .\.venv\Scripts\Activate.ps1
+    python -m pip install -r backend\requirements.txt
+
+Se a ativação do ambiente virtual for bloqueada pela política do PowerShell,
+consulte a política da sua máquina ou execute os comandos Python usando
+    .\.venv\Scripts\python.exe
+sem alterar políticas de segurança sem autorização.
+
+4. INICIAR A APLICAÇÃO
+----------------------
+Terminal 1 — iniciar a API de comparação:
+
+    python backend\app.py
+
+Terminal 2 — na pasta principal do projeto, iniciar o servidor da interface:
+
+    python -m http.server 8000
+
+Abra http://localhost:8000 no navegador. A API responde em
+http://localhost:5000/api/health. Se a API não estiver ativa, o diário e seus
+registros continuam disponíveis; apenas a medição de diferenças fica
+indisponível.
+
+Para usar apenas a interface, sem a API, abra o arquivo index.html diretamente
+no navegador. Recomenda-se o servidor local acima para evitar limitações de
+origem impostas pelo navegador.
+
+5. REGISTRAR ACOMPANHAMENTO
+---------------------------
+1. Na seção "Novo registro", informe a região e a data.
+2. Opcionalmente, escolha uma foto. A imagem é redimensionada para no máximo
+   1024 pixels no lado maior e convertida para JPEG antes do armazenamento.
+3. Informe os níveis de sintomas de 0 a 10.
+4. Se desejar, preencha produtos/tratamentos e observações.
+5. Selecione "Salvar registro".
+
+Para facilitar comparações, fotografe em condições parecidas de luz, distância
+e ângulo. O histórico permite filtrar uma região e, com pelo menos dois
+registros, visualizar a evolução dos sintomas no gráfico.
+
+6. COMPARAR FOTOS
+-----------------
+1. Crie pelo menos dois registros com fotos.
+2. Na seção "Comparar duas datas", selecione as imagens "Antes" e "Depois".
+3. Use o controle deslizante para sobrepor as fotos.
+4. Se a API local estiver ativa, selecione "Medir diferenças" para obter
+   medidas de brilho, tom avermelhado e diferença visual.
+
+As medidas dependem das condições das fotografias e não representam uma
+avaliação clínica. Ao medir, as duas fotos escolhidas são enviadas à API local
+para processamento temporário; a API não as guarda.
+
+7. BACKUP E EXCLUSÃO
+--------------------
+- "Exportar backup" baixa um JSON com registros e fotos.
+- "Importar backup" acrescenta os registros do arquivo aos já existentes; não
+  substitui os dados atuais. São aceitos backups SkinLog versão 1, com até 500
+  registros e arquivo de até 120 MB.
+- A importação valida o conteúdo antes de salvar e grava os itens em uma única
+  transação.
+- Excluir um registro remove também a foto associada.
+- "Apagar tudo" remove todos os registros deste navegador e não pode ser
+  desfeito.
+
+O backup contém dados pessoais e fotos sem criptografia. Guarde-o em local
+seguro e não o envie a terceiros sem consentimento.
+
+8. ARQUIVOS DO PROJETO
+----------------------
+- index.html: conteúdo e estrutura da página.
+- assets\css\style.css: apresentação visual e regras para telas menores.
+- assets\js\script.js: interação, IndexedDB, processamento local de fotos,
+  gráficos, comparação e operações de backup.
+- backend\app.py: API Flask, endpoint de saúde, endpoint de comparação e
+  tratamento de erros.
+- backend\analysis.py: abertura, validação, redimensionamento e cálculo das
+  medidas das imagens.
+- backend\requirements.txt: bibliotecas necessárias ao backend.
+- README.md: visão geral, instalação resumida, privacidade e validação.
+- versão.txt: versão documentada, inventário e melhorias futuras.
+
+9. PRIVACIDADE E USO RESPONSÁVEL
+--------------------------------
+Os registros não são enviados a um servidor nem sincronizados. Eles ficam
+somente no perfil do navegador usado para criá-los. Limpar os dados do
+navegador pode apagá-los; exporte um backup antes.
+
+A API foi preparada para uso local e não possui autenticação. O CORS está
+aberto para facilitar a interface durante o desenvolvimento. Não exponha a API
+à internet sem configurar origens autorizadas, autenticação, HTTPS e medidas
+de segurança adequadas.
+
+Procure avaliação médica diante de lesões que mudem, sangrem, não cicatrizem,
+apresentem dor intensa ou outros sinais preocupantes. Falta de ar ou inchaço
+do rosto exige atendimento de emergência.
+
+10. VERIFICAÇÕES DE SINTAXE
+---------------------------
+Na raiz do projeto:
+
+    node --check assets\js\script.js
+    python -c "import ast, pathlib; [ast.parse(pathlib.Path(p).read_text(encoding='utf-8'), filename=p) for p in [r'backend\app.py', r'backend\analysis.py']]"
+
+Consulte README.md para o resumo e versão.txt para o inventário completo e
+ideias de evolução.

@@ -1,0 +1,96 @@
+SKINLOG — VISÃO GERAL E VERSÃO
+==============================
+
+VERSÃO DO PROJETO: 1.0.0
+------------------------
+Esta é a versão inicial documentada do projeto. Não havia um arquivo de versão
+ou metadado de release no projeto antes desta documentação. A versão do backup
+JSON (campo "version": 1) identifica o formato do arquivo e não é a versão do
+projeto.
+
+DESCRIÇÃO
+---------
+Aplicação web de acompanhamento pessoal da pele, em português, que permite
+registrar regiões do corpo, datas, fotos, sintomas informados pela pessoa,
+produtos e observações. A interface armazena os registros no IndexedDB local,
+mostra histórico e gráficos e permite comparar duas fotos por sobreposição.
+
+Um serviço Python/Flask opcional calcula estatísticas visuais simples das fotos.
+Essas medidas não são diagnóstico ou interpretação médica. O projeto destina-se
+a uso local; a API não possui autenticação e requer preparação de segurança
+antes de qualquer implantação pública.
+
+INVENTÁRIO DOS ARQUIVOS
+-----------------------
+
+index.html
+  Documento principal da interface: navegação, formulário de registro,
+  histórico, gráfico em canvas, comparação, orientações e avisos.
+
+assets\css\style.css
+  Variáveis visuais, tipografia, componentes, layout responsivo, estados de
+  interação e animações da interface.
+
+assets\js\script.js
+  Comportamento da interface: menu e navegação, persistência de registros no
+  IndexedDB, conversão e prévia de fotos, histórico, gráfico, comparação,
+  comunicação opcional com a API e importação/exportação de backups. A data
+  padrão usa o fuso local do navegador.
+
+backend\app.py
+  Aplicação Flask. Expõe GET /api/health e POST /api/compare, limita o tamanho
+  da requisição a 12 MiB e converte erros em respostas JSON. Inicia o servidor
+  local sem o modo de depuração.
+
+backend\analysis.py
+  Valida imagens JPEG, PNG ou WEBP, respeita orientação EXIF, limita imagens a
+  25 megapixels, redimensiona para 256 x 256 e calcula brilho, diferença entre
+  canais vermelho e verde e diferença visual média.
+
+backend\requirements.txt
+  Dependências fixadas do backend: Flask, Flask-CORS e Pillow.
+
+README.md
+  Resumo do produto, requisitos, configuração local, privacidade, arquivos e
+  verificações rápidas.
+
+passo-a-passo.txt
+  Guia em português para instalar, iniciar, usar, comparar e fazer backup.
+
+FLUXO DE DADOS
+--------------
+1. A interface salva os registros e as fotos no IndexedDB do navegador.
+2. O processamento de foto no registro ocorre no próprio navegador: a imagem é
+   redimensionada para até 1024 pixels no lado maior e convertida para JPEG.
+3. Ao solicitar comparação, somente as duas fotos escolhidas são enviadas à
+   API local. As imagens são processadas em memória e não são armazenadas pela
+   API.
+4. Os backups exportados são arquivos JSON locais que podem conter fotos e
+   dados sensíveis; o usuário é responsável por protegê-los.
+
+MELHORIAS FUTURAS
+-----------------
+- Criar testes automatizados para interface, importação/exportação e endpoints
+  da API.
+- Oferecer opção para criptografar backups e orientar a recuperação segura.
+- Adicionar edição de registros, busca e filtros por intervalo de datas.
+- Melhorar a acessibilidade do gráfico, incluindo uma alternativa textual ou
+  uma tabela dos valores.
+- Permitir configuração explícita de endereço da API e timeout de requisições.
+- Restringir CORS, adicionar autenticação e HTTPS antes de uma implantação
+  remota; definir limites de taxa e monitoramento sem registrar imagens.
+- Adicionar políticas de retenção e exportação/exclusão mais granulares.
+- Validar a interface em diferentes navegadores e dispositivos móveis.
+- Tornar textos médicos e avisos revisáveis por profissionais de saúde,
+  mantendo claro que a aplicação não diagnostica.
+
+LIMITES CONHECIDOS
+------------------
+- O armazenamento pertence ao navegador e dispositivo atuais; não há
+  sincronização nem recuperação automática se os dados locais forem apagados.
+- As medidas de imagem variam conforme iluminação, câmera, distância e
+  enquadramento e não devem ser interpretadas como evolução clínica.
+- A API usa CORS aberto para facilitar o desenvolvimento local e não possui
+  autenticação. Não deve ser exposta publicamente sem controles adicionais.
+- Dependências Python estão fixadas em backend\requirements.txt; atualizações
+  devem ser avaliadas e testadas antes de uso.

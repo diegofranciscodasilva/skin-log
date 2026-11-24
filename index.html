@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkinLog | Acompanhamento visual da pele</title>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <!-- Remix Icon -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- ========== HEADER ========== -->
+    <header class="header">
+        <div class="header__container container">
+            <a href="#inicio" class="header__logo"><i class="ri-heart-pulse-line"></i> SkinLog</a>
+
+            <!-- Até 768px, os links ficam dentro de um botão que abre e fecha o menu -->
+            <nav class="header__nav" id="nav-menu" aria-label="Navegação principal">
+                <ul class="header__list">
+                    <li><a href="#inicio" class="header__link active">Início</a></li>
+                    <li><a href="#registrar" class="header__link">Registrar</a></li>
+                    <li><a href="#historico" class="header__link">Histórico</a></li>
+                    <li><a href="#comparar" class="header__link">Comparar</a></li>
+                    <li><a href="#orientacoes" class="header__link">Orientações</a></li>
+                </ul>
+            </nav>
+
+            <button class="header__toggle" id="nav-toggle" aria-label="Abrir menu" aria-expanded="false">
+                <i class="ri-menu-line"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- ========== HERO ========== -->
+        <section class="hero" id="inicio">
+            <div class="container hero__container">
+                <span class="badge"><i class="ri-lock-2-line"></i> Seus dados ficam neste navegador</span>
+                <h1 class="page-title">Acompanhe a evolução da sua pele com fotos e anotações</h1>
+                <p class="page-subtitle">Registre, compare datas e leve um histórico organizado para a sua consulta.</p>
+
+                <div class="hero__actions">
+                    <a href="#registrar" class="btn btn--primary"><i class="ri-camera-line"></i> Novo registro</a>
+                    <a href="#historico" class="btn btn--outline"><i class="ri-line-chart-line"></i> Ver evolução</a>
+                </div>
+
+                <p class="disclaimer"><i class="ri-information-line"></i>
+                    O SkinLog é um diário pessoal. <strong>Não diagnostica nem substitui a avaliação de um
+                        médico.</strong></p>
+                <p class="api-status" id="api-status"><span class="dot"></span><span id="api-status-text">Análise
+                        opcional: verificando...</span></p>
+            </div>
+        </section>
+
+        <!-- ========== REGISTRAR ========== -->
+        <section class="section section--alt" id="registrar">
+            <div class="container">
+                <h2 class="section-title">Novo registro</h2>
+                <p class="section-subtitle">Quanto mais parecidas as fotos (luz, distância e ângulo), melhor a
+                    comparação.</p>
+
+                <form class="card form" id="record-form" novalidate>
+                    <div class="field">
+                        <label for="r-area">Região do corpo</label>
+                        <input id="r-area" maxlength="60" placeholder="Ex.: antebraço direito" required
+                            list="areas-list" />
+                        <datalist id="areas-list"></datalist>
+                    </div>
+                    <div class="field">
+                        <label for="r-date">Data</label>
+                        <input id="r-date" type="date" required />
+                    </div>
+
+                    <div class="field field--full">
+                        <label for="r-photo">Foto (opcional)</label>
+                        <label class="dropzone" for="r-photo" id="photo-drop">
+                            <img id="photo-preview" alt="Prévia da foto" hidden />
+                            <span id="photo-hint"><i class="ri-camera-line"></i> Toque para tirar ou escolher uma
+                                foto</span>
+                            <input type="file" id="r-photo" class="sr-only" accept="image/*" />
+                        </label>
+                    </div>
+
+                    <!-- Sintomas de 0 a 10, informados por você -->
+                    <div class="field field--full sliders">
+                        <div class="slider"><label for="r-itch">Coceira <output id="o-itch">0</output>/10</label><input
+                                id="r-itch" type="range" min="0" max="10" value="0" /></div>
+                        <div class="slider"><label for="r-pain">Dor ou ardência <output
+                                    id="o-pain">0</output>/10</label><input id="r-pain" type="range" min="0" max="10"
+                                value="0" /></div>
+                        <div class="slider"><label for="r-redness">Vermelhidão <output
+                                    id="o-redness">0</output>/10</label><input id="r-redness" type="range" min="0"
+                                max="10" value="0" /></div>
+                    </div>
+
+                    <div class="field field--full">
+                        <label for="r-products">Produtos ou tratamentos usados</label>
+                        <input id="r-products" maxlength="200"
+                            placeholder="Ex.: hidratante sem perfume, protetor solar" />
+                    </div>
+                    <div class="field field--full">
+                        <label for="r-notes">Observações</label>
+                        <textarea id="r-notes" rows="3" maxlength="500"
+                            placeholder="Alimentação, estresse, clima, sensações..."></textarea>
+                    </div>
+
+                    <div class="center field--full">
+                        <button type="submit" class="btn btn--primary" id="btn-save"><i class="ri-save-3-line"></i>
+                            Salvar registro</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ========== HISTÓRICO ========== -->
+        <section class="section" id="historico">
+            <div class="container">
+                <h2 class="section-title">Histórico e evolução</h2>
+                <p class="section-subtitle">Escolha uma região para ver o gráfico dos sintomas ao longo do tempo.</p>
+
+                <div class="card">
+                    <div class="field">
+                        <label for="f-area">Região</label>
+                        <select id="f-area"></select>
+                    </div>
+                    <canvas id="chart" role="img"
+                        aria-label="Gráfico de coceira, dor e vermelhidão ao longo do tempo"></canvas>
+                    <p class="notice" id="chart-note"></p>
+                </div>
+
+                <div class="grid" id="records"></div>
+
+                <!-- Gestão dos dados -->
+                <div class="card data-card">
+                    <h3><i class="ri-database-2-line"></i> Seus dados</h3>
+                    <p>Faça um backup antes de limpar o navegador ou trocar de aparelho.</p>
+                    <div class="center">
+                        <button type="button" class="btn btn--outline" id="btn-export"><i
+                                class="ri-download-2-line"></i> Exportar backup</button>
+                        <label class="btn btn--outline" for="import-file"><i class="ri-upload-2-line"></i> Importar
+                            backup</label>
+                        <input type="file" id="import-file" class="sr-only" accept="application/json" />
+                        <button type="button" class="btn btn--danger" id="btn-clear"><i class="ri-delete-bin-line"></i>
+                            Apagar tudo</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== COMPARAR ========== -->
+        <section class="section section--alt" id="comparar">
+            <div class="container">
+                <h2 class="section-title">Comparar duas datas</h2>
+                <p class="section-subtitle">Arraste o controle para ver as fotos sobrepostas.</p>
+
+                <div class="card">
+                    <div class="pair">
+                        <div class="field"><label for="c-before">Antes</label><select id="c-before"></select></div>
+                        <div class="field"><label for="c-after">Depois</label><select id="c-after"></select></div>
+                    </div>
+
+                    <div class="ba" id="ba" hidden>
+                        <img id="ba-after" alt="Foto depois" />
+                        <img id="ba-before" class="ba__before" alt="Foto antes" />
+                        <span class="ba__tag ba__tag--left">Antes</span>
+                        <span class="ba__tag ba__tag--right">Depois</span>
+                    </div>
+                    <input type="range" id="ba-range" min="0" max="100" value="50" aria-label="Posição da comparação"
+                        hidden />
+                    <p class="notice" id="ba-empty">Salve ao menos dois registros com foto para comparar.</p>
+
+                    <div class="center">
+                        <button type="button" class="btn btn--primary" id="btn-analyze" disabled><i
+                                class="ri-bar-chart-2-line"></i> Medir diferenças</button>
+                    </div>
+                    <div class="table-wrap" id="analysis"></div>
+                    <p class="notice" id="analysis-note" hidden>Luz, câmera e distância alteram estas medidas. Elas não
+                        indicam melhora nem piora. Mostre as fotos ao seu médico.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========== ORIENTAÇÕES ========== -->
+        <section class="section" id="orientacoes">
+            <div class="container">
+                <h2 class="section-title">Orientações</h2>
+                <p class="section-subtitle">Boas fotos e sinais que pedem avaliação médica.</p>
+
+                <div class="info-grid">
+                    <article class="info">
+                        <i class="ri-camera-lens-line"></i>
+                        <h3>Como fotografar</h3>
+                        <ul>
+                            <li>Use luz natural, sem flash e sem filtros.</li>
+                            <li>Mantenha a mesma distância e o mesmo ângulo.</li>
+                            <li>Coloque um objeto de referência (régua ou moeda).</li>
+                            <li>Fotografe sempre no mesmo horário, se possível.</li>
+                        </ul>
+                    </article>
+                    <article class="info info--alert">
+                        <i class="ri-alarm-warning-line"></i>
+                        <h3>Procure um médico se houver</h3>
+                        <ul>
+                            <li>Ferida que não cicatriza ou sangra sem motivo.</li>
+                            <li>Pinta ou mancha que muda de tamanho, cor, forma ou borda.</li>
+                            <li>Dor intensa, inchaço, pus ou febre.</li>
+                            <li>Crescimento rápido ou lesão perto de olhos e boca.</li>
+                            <li>Falta de ar ou inchaço do rosto: busque emergência.</li>
+                        </ul>
+                    </article>
+                    <article class="info">
+                        <i class="ri-shield-keyhole-line"></i>
+                        <h3>Privacidade</h3>
+                        <ul>
+                            <li>Os registros ficam só neste navegador.</li>
+                            <li>Fotos são redimensionadas e perdem os metadados.</li>
+                            <li>"Medir diferenças" envia duas fotos à API, que não as guarda.</li>
+                            <li>Você pode apagar tudo a qualquer momento.</li>
+                        </ul>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; <span id="current-year"></span> SkinLog. Projeto de portfólio. Não substitui avaliação médica.</p>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- Botão voltar ao topo -->
+    <button class="scroll-up" id="scroll-up" aria-label="Voltar ao topo"><i class="ri-arrow-up-line"></i></button>
+
+    <script src="./assets/js/script.js"></script>
+</body>
+
+</html>
